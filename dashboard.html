@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Intern Portal{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <div class="card">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h1 style="color: #333; margin-bottom: 0.5rem;">Welcome, {{ user.name }}! 👋</h1>
+            <p style="color: #666;">Member since {{ user.join_date }}</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <!-- Referral Code Card -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 15px; text-align: center;">
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Your Referral Code</h3>
+                <div style="font-size: 1.8rem; font-weight: bold; margin: 1rem 0;">{{ user.referral_code }}</div>
+                <button onclick="copyReferralCode()" class="btn" style="background: rgba(255,255,255,0.2); border: 2px solid white;">
+                    Copy Code 📋
+                </button>
+            </div>
+
+            <!-- Donations Raised Card -->
+            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 1.5rem; border-radius: 15px; text-align: center;">
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Total Donations Raised</h3>
+                <div style="font-size: 2.5rem; font-weight: bold; margin: 1rem 0;">₹{{ "{:,}".format(user.donations_raised) }}</div>
+                <button onclick="addDonation()" class="btn" style="background: rgba(255,255,255,0.2); border: 2px solid white;">
+                    Add Donation 💰
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div style="margin-bottom: 2rem;">
+            <h3 style="color: #333; margin-bottom: 1rem;">Progress to Next Milestone 🎯</h3>
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 1rem;">
+                {% set next_milestone = 20000 %}
+                {% set progress = (user.donations_raised / next_milestone * 100) | round(1) %}
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="font-weight: 500;">₹{{ "{:,}".format(user.donations_raised) }} / ₹{{ "{:,}".format(next_milestone) }}</span>
+                    <span style="color: #667eea; font-weight: bold;">{{ progress }}%</span>
+                </div>
+                <div style="background: #e9ecef; border-radius: 10px; height: 20px; overflow: hidden;">
+                    <div class="progress-bar" data-progress="{{ progress }}"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rewards Section -->
+        <div>
+            <h3 style="color: #333; margin-bottom: 1rem;">Your Rewards & Achievements 🏆</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                {% if user.rewards %}
+                    {% for reward in user.rewards %}
+                    <div style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); color: white; padding: 1rem; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">
+                            {% if "Bronze" in reward %}🥉
+                            {% elif "Silver" in reward %}🥈
+                            {% elif "Gold" in reward %}🥇
+                            {% elif "First" in reward %}🎉
+                            {% elif "10K" in reward %}💎
+                            {% elif "Top" in reward %}⭐
+                            {% else %}🏅
+                            {% endif %}
+                        </div>
+                        <div style="font-weight: 500;">{{ reward }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="background: #f8f9fa; padding: 2rem; border-radius: 10px; text-align: center; color: #666;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+                        <p>Start raising donations to unlock your first reward!</p>
+                    </div>
+                {% endif %}
+                
+                <!-- Locked Rewards -->
+                <div style="background: #e9ecef; color: #666; padding: 1rem; border-radius: 10px; text-align: center; border: 2px dashed #ccc;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔒</div>
+                    <div style="font-weight: 500;">Silver Badge</div>
+                    <small>Unlock at ₹20,000</small>
+                </div>
+                
+                <div style="background: #e9ecef; color: #666; padding: 1rem; border-radius: 10px; text-align: center; border: 2px dashed #ccc;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔒</div>
+                    <div style="font-weight: 500;">Gold Badge</div>
+                    <small>Unlock at ₹50,000</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.progress-bar {
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    height: 100%;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+</style>
+
+<script>
+// Set progress bar width after page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBar = document.querySelector('.progress-bar');
+    const progress = progressBar.getAttribute('data-progress');
+    progressBar.style.width = progress + '%';
+});
+
+function copyReferralCode() {
+    const code = "{{ user.referral_code }}";
+    navigator.clipboard.writeText(code).then(() => {
+        alert("Referral code copied to clipboard! 📋");
+    });
+}
+
+function addDonation() {
+    const amount = prompt("Enter donation amount:");
+    if (amount && !isNaN(amount) && amount > 0) {
+        fetch('/api/update_donations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({amount: parseInt(amount)})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Great! Added ₹${amount} to your donations. New total: ₹${data.new_total.toLocaleString()}`);
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating donations');
+        });
+    }
+}
+</script>
+{% endblock %}

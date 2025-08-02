@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Intern Portal{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+    <div class="card" style="width: 100%; max-width: 400px;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h2 style="color: #333; margin-bottom: 0.5rem;">Welcome Back! 👋</h2>
+            <p style="color: #666;">Sign in to your intern account</p>
+        </div>
+
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required placeholder="Enter your username">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
+            </div>
+
+            <button type="submit" class="btn" style="width: 100%; margin-bottom: 1rem;">
+                Sign In 🔑
+            </button>
+        </form>
+
+        <div style="text-align: center; padding-top: 1rem; border-top: 1px solid #eee;">
+            <p style="color: #666; margin-bottom: 1rem;">Don't have an account?</p>
+            <a href="/signup" class="btn btn-secondary" style="width: 100%;">
+                Create Account 📝
+            </a>
+        </div>
+
+        <div style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 10px;">
+            <h4 style="color: #555; margin-bottom: 0.5rem;">Demo Credentials:</h4>
+            <p style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                <strong>Username:</strong> john_doe<br>
+                <strong>Password:</strong> any password
+            </p>
+            <p style="color: #666; font-size: 0.9rem;">
+                <strong>Or try:</strong> jane_smith, alex_wilson
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

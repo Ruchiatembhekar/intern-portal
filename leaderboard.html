@@ -1,0 +1,583 @@
+{% extends "base.html" %}
+
+{% block title %}Leaderboard - Intern Portal{% endblock %}
+
+{% block content %}
+<style>
+.leaderboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.header-title {
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.header-subtitle {
+    color: #666;
+}
+
+.podium-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+.podium-item {
+    text-align: center;
+}
+
+.podium-gold {
+    background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+    color: white;
+    padding: 2rem 1rem;
+    border-radius: 20px;
+    position: relative;
+}
+
+.podium-silver {
+    background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+    color: #333;
+    padding: 1.5rem 1rem;
+    border-radius: 20px;
+    position: relative;
+}
+
+.podium-bronze {
+    background: linear-gradient(135deg, #cd7f32 0%, #e6a85c 100%);
+    color: white;
+    padding: 1.5rem 1rem;
+    border-radius: 20px;
+    position: relative;
+}
+
+.podium-emoji {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.podium-emoji-small {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.podium-rank {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.rank-gold {
+    background: rgba(255,255,255,0.3);
+}
+
+.rank-silver {
+    background: rgba(0,0,0,0.1);
+}
+
+.rank-bronze {
+    background: rgba(255,255,255,0.3);
+}
+
+.podium-name {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.podium-amount {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.podium-code {
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+}
+
+.code-gold {
+    background: rgba(255,255,255,0.2);
+}
+
+.code-silver {
+    background: rgba(0,0,0,0.1);
+}
+
+.code-bronze {
+    background: rgba(255,255,255,0.2);
+}
+
+.leaderboard-table {
+    background: #f8f9fa;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.table-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 150px 120px;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    transition: transform 0.2s ease;
+}
+
+.table-row:hover {
+    transform: scale(1.02);
+}
+
+.current-user {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.rank-number {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #667eea;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.2rem;
+}
+
+.user-badge {
+    background: #667eea;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+}
+
+.user-code {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.user-amount {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.user-level {
+    text-align: center;
+}
+
+.level-expert {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.level-advanced {
+    background: linear-gradient(45deg, #FF9800, #f57c00);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.level-intermediate {
+    background: linear-gradient(45deg, #2196F3, #1976D2);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.level-beginner {
+    background: linear-gradient(45deg, #9C27B0, #7B1FA2);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.stats-grid {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.stat-card-1 {
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.stat-card-2 {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    color: #333;
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.stat-card-3 {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    color: #333;
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.stat-title {
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.achievements-section {
+    margin-top: 2rem;
+}
+
+.achievements-title {
+    color: #333;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.achievement-card-1 {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+}
+
+.achievement-card-2 {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+}
+
+.achievement-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.achievement-emoji {
+    font-size: 2.5rem;
+}
+
+.achievement-title {
+    margin-bottom: 0.3rem;
+}
+
+.achievement-text {
+    margin: 0;
+    opacity: 0.9;
+}
+
+.progress-section {
+    margin-top: 2rem;
+}
+
+.progress-title {
+    color: #333;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.progress-item {
+    background: #f8f9fa;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.progress-name {
+    font-weight: 600;
+}
+
+.progress-percent {
+    color: #667eea;
+    font-weight: bold;
+}
+
+.progress-bar {
+    background: #e9ecef;
+    border-radius: 10px;
+    height: 15px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.progress-fill-gold {
+    background: linear-gradient(90deg, #f7971e, #ffd200);
+}
+
+.progress-fill-silver {
+    background: linear-gradient(90deg, #c0c0c0, #e8e8e8);
+}
+
+.progress-fill-bronze {
+    background: linear-gradient(90deg, #cd7f32, #e6a85c);
+}
+</style>
+
+<div class="card">
+    <div class="leaderboard-container">
+        <div class="header-section">
+            <h1 class="header-title">🏆 Intern Leaderboard</h1>
+            <p class="header-subtitle">See how you stack up against other interns!</p>
+        </div>
+
+        <!-- Top 3 Podium -->
+        <div class="podium-grid">
+            {% for username, user in users[:3] %}
+            <div class="podium-item">
+                {% if loop.index == 1 %}
+                    <div class="podium-gold">
+                        <div class="podium-emoji">👑</div>
+                        <div class="podium-rank rank-gold">1</div>
+                        <h3 class="podium-name">{{ user.name }}</h3>
+                        <div class="podium-amount">₹{{ "{:,}".format(user.donations_raised) }}</div>
+                        <div class="podium-code code-gold">{{ user.referral_code }}</div>
+                    </div>
+                {% elif loop.index == 2 %}
+                    <div class="podium-silver">
+                        <div class="podium-emoji-small">🥈</div>
+                        <div class="podium-rank rank-silver">2</div>
+                        <h3 class="podium-name">{{ user.name }}</h3>
+                        <div class="podium-amount">₹{{ "{:,}".format(user.donations_raised) }}</div>
+                        <div class="podium-code code-silver">{{ user.referral_code }}</div>
+                    </div>
+                {% else %}
+                    <div class="podium-bronze">
+                        <div class="podium-emoji-small">🥉</div>
+                        <div class="podium-rank rank-bronze">3</div>
+                        <h3 class="podium-name">{{ user.name }}</h3>
+                        <div class="podium-amount">₹{{ "{:,}".format(user.donations_raised) }}</div>
+                        <div class="podium-code code-bronze">{{ user.referral_code }}</div>
+                    </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Full Leaderboard Table -->
+        <div class="leaderboard-table">
+            <div class="table-header">
+                <h3>Complete Rankings 📊</h3>
+            </div>
+            
+            <div>
+                {% for username, user in users %}
+                <div class="table-row {% if session.username == username %}current-user{% endif %}">
+                    <div class="rank-number">
+                        {% if loop.index == 1 %}🥇
+                        {% elif loop.index == 2 %}🥈
+                        {% elif loop.index == 3 %}🥉
+                        {% else %}#{{ loop.index }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="user-info">
+                        <div class="user-name">
+                            {{ user.name }}
+                            {% if session.username == username %}
+                                <span class="user-badge">YOU</span>
+                            {% endif %}
+                        </div>
+                        <div class="user-code">{{ user.referral_code }}</div>
+                    </div>
+                    
+                    <div class="user-amount">
+                        ₹{{ "{:,}".format(user.donations_raised) }}
+                    </div>
+                    
+                    <div class="user-level">
+                        {% if user.donations_raised >= 15000 %}
+                            <div class="level-expert">Expert</div>
+                        {% elif user.donations_raised >= 10000 %}
+                            <div class="level-advanced">Advanced</div>
+                        {% elif user.donations_raised >= 5000 %}
+                            <div class="level-intermediate">Intermediate</div>
+                        {% else %}
+                            <div class="level-beginner">Beginner</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="stats-grid">
+            <div class="stat-card-1">
+                <h4 class="stat-title">Total Interns</h4>
+                <div class="stat-value">{{ users|length }}</div>
+            </div>
+            
+            <div class="stat-card-2">
+                <h4 class="stat-title">Total Raised</h4>
+                {% set total_raised = 0 %}
+                {% for username, user in users %}
+                    {% set total_raised = total_raised + user.donations_raised %}
+                {% endfor %}
+                <div class="stat-value">₹{{ "{:,}".format(total_raised) }}</div>
+            </div>
+            
+            <div class="stat-card-3">
+                <h4 class="stat-title">Average per Intern</h4>
+                {% if users|length > 0 %}
+                    {% set avg_raised = (total_raised / users|length)|round|int %}
+                    <div class="stat-value">₹{{ "{:,}".format(avg_raised) }}</div>
+                {% else %}
+                    <div class="stat-value">₹0</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Achievements Section -->
+        {% if users|length > 0 %}
+        <div class="achievements-section">
+            <h3 class="achievements-title">🏅 Recent Achievements</h3>
+            <div class="achievements-grid">
+                <div class="achievement-card-1">
+                    <div class="achievement-content">
+                        <div class="achievement-emoji">🥇</div>
+                        <div>
+                            <h4 class="achievement-title">Top Performer</h4>
+                            <p class="achievement-text">{{ users[0][1].name }} leads with ₹{{ "{:,}".format(users[0][1].donations_raised) }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="achievement-card-2">
+                    <div class="achievement-content">
+                        <div class="achievement-emoji">🎯</div>
+                        <div>
+                            <h4 class="achievement-title">Milestone Reached</h4>
+                            {% set milestone_count = 0 %}
+                            {% for username, user in users %}
+                                {% if user.donations_raised >= 10000 %}
+                                    {% set milestone_count = milestone_count + 1 %}
+                                {% endif %}
+                            {% endfor %}
+                            <p class="achievement-text">{{ milestone_count }} interns reached ₹10K milestone</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Progress Bars for Top 3 -->
+        {% if users|length >= 1 %}
+        <div class="progress-section">
+            <h3 class="progress-title">📊 Top 3 Progress to ₹20K Goal</h3>
+            {% for username, user in users[:3] %}
+            {% set progress_percent = ((user.donations_raised / 20000) * 100)|round(1) %}
+            <div class="progress-item">
+                <div class="progress-header">
+                    <span class="progress-name">{{ loop.index }}. {{ user.name }}</span>
+                    <span class="progress-percent">{{ progress_percent }}%</span>
+                </div>
+                <div class="progress-bar">
+                    {% if loop.index == 1 %}
+                        <div class="progress-fill progress-fill-gold" data-width="{{ progress_percent }}"></div>
+                    {% elif loop.index == 2 %}
+                        <div class="progress-fill progress-fill-silver" data-width="{{ progress_percent }}"></div>
+                    {% else %}
+                        <div class="progress-fill progress-fill-bronze" data-width="{{ progress_percent }}"></div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+setInterval(function() {
+    location.reload();
+}, 30000);
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Set progress bar widths using JavaScript
+    const progressBars = document.querySelectorAll('.progress-fill');
+    progressBars.forEach(function(bar) {
+        const width = bar.getAttribute('data-width');
+        bar.style.width = width + '%';
+    });
+
+    // Add hover effects
+    const tableRows = document.querySelectorAll('.table-row');
+    tableRows.forEach(function(row) {
+        row.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+        });
+        
+        row.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+});
+</script>
+{% endblock %}
